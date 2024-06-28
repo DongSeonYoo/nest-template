@@ -7,6 +7,7 @@ import {
   Get,
   Query,
   Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
@@ -55,7 +56,7 @@ export class UsersController {
   @Get(':userIdx')
   @ApiSuccess(UserDetailResponseDto)
   @ApiException(HttpStatus.NOT_FOUND, '존재하지 않는 유저입니다.')
-  findOne(@Param('userIdx') userIdx: number) {
+  findOne(@Param('userIdx', ParseIntPipe) userIdx: number) {
     return this.usersService.findUserByIdx(userIdx);
   }
 }
