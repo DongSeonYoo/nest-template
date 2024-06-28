@@ -12,6 +12,11 @@
 - cookie-parser
 
 ## template list
+
+### 정적 콘텐츠 제공
+- static위치 '/client'
+- api 라우트를 제외한 라우트 경로에 따른 html 페이지 제공
+
 ### api성공, 실패 공통 인터페이스 정의
 - 성공응답: interceptor
 - 실패응답: global exception filter
