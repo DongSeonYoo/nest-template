@@ -3,10 +3,11 @@ import { AppModule } from './app.module';
 import { StaticRouteMiddleware } from './middlewares/static-route.middleware';
 import { ConfigService } from '@nestjs/config';
 import { TransformationInterceptor } from './interceptors/response.interceptor';
-import { GlobalExceptionFilter } from './filters/global-exception.filter';
 import { setSwagger } from './configs/swagger.config';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { GlobalExceptionFilter } from './filters/global-exception.filter';
+import { PrismaClientExceptionFilter } from './filters/prisma-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,8 +17,9 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(new StaticRouteMiddleware().use);
   app.useGlobalInterceptors(new TransformationInterceptor(new Reflector()));
-  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalFilters(new GlobalExceptionFilter(new Logger()));
+  app.useGlobalFilters(new PrismaClientExceptionFilter(new Logger()));
 
   setSwagger(app);
 

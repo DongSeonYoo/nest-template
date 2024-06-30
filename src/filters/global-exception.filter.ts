@@ -11,7 +11,7 @@ import { IExceptionResponse } from 'src/interfaces/response.interface';
 
 @Catch(HttpException)
 export class GlobalExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(GlobalExceptionFilter.name);
+  constructor(private readonly logger: Logger) {}
 
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -30,10 +30,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     };
 
     if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
-      this.logger.error({ err: response });
+      this.logger.error(response);
       // winston같은 로거를 사용해서 로그를 저장하는게 좋을듯?
     } else {
-      this.logger.warn({ err: response });
+      this.logger.warn(response);
     }
 
     return res.status(status).json(response);
