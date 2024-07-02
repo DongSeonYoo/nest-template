@@ -21,8 +21,11 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
       isGlobal: true,
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
-      renderPath: '*',
+      rootPath: join(__dirname, '..', 'client', 'html'),
+      renderPath: '/',
+      serveStaticOptions: {
+        extensions: ['html'],
+      },
       exclude: ['/api/(.*)'],
     }),
     UsersModule,

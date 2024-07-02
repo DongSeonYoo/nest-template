@@ -1,6 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { StaticRouteMiddleware } from './middlewares/static-route.middleware';
 import { ConfigService } from '@nestjs/config';
 import { TransformationInterceptor } from './interceptors/response.interceptor';
 import { setSwagger } from './configs/swagger.config';
@@ -15,7 +14,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.use(cookieParser());
-  app.use(new StaticRouteMiddleware().use);
   app.useGlobalInterceptors(new TransformationInterceptor(new Reflector()));
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalFilters(new GlobalExceptionFilter(new Logger()));
