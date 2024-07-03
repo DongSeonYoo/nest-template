@@ -10,7 +10,7 @@ import { Request, Response } from 'express';
 import { ISuccessResponse } from 'src/interfaces/response.interface';
 
 @Injectable()
-export class TransformationInterceptor<T>
+export class SuccessResponseInterceptor<T>
   implements NestInterceptor<T, ISuccessResponse<T>>
 {
   constructor(private reflector: Reflector) {}
