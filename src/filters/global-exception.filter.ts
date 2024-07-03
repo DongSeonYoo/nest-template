@@ -2,40 +2,29 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
-  HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
 import { IExceptionResponse } from 'src/interfaces/response.interface';
 
-@Catch(HttpException)
+@Catch(Error)
 export class GlobalExceptionFilter implements ExceptionFilter {
   constructor(private readonly logger: Logger) {}
-
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const req: Request = ctx.getRequest();
-    const res: Response = ctx.getResponse();
-
-    const status = exception.getStatus
-      ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
+    const req = ctx.getRequest();
+    const res = ctx.getResponse();
+    const statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
 
     const response: IExceptionResponse = {
-      message: exception.getResponse()['message'],
-      statusCode: status,
-      timestamp: new Date(),
+      message: '서버에서 오류가 발생하였습니다',
       requestURL: req.url,
+      statusCode: statusCode,
+      timestamp: new Date(),
     };
 
-    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
-      this.logger.error(response);
-      // winston같은 로거를 사용해서 로그를 저장하는게 좋을듯?
-    } else {
-      this.logger.warn(response);
-    }
+    this.logger.error(exception);
 
-    return res.status(status).json(response);
+    return res.status(statusCode).send(response);
   }
 }
