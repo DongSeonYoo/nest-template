@@ -14,6 +14,10 @@ import { UsersModule } from './apis/users/users.module';
 import { AuthModule } from './apis/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { PrismaClientExceptionFilter } from './filters/prisma-exception.filter';
+import { GlobalExceptionFilter } from './filters/global-exception.filter';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
+import { SuccessResponseInterceptor } from './interceptors/response.interceptor';
 
 @Module({
   imports: [
@@ -33,7 +37,31 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
     PrismaModule,
   ],
   controllers: [AppController],
-  providers: [AppService, LoggerMiddleware, Logger],
+  providers: [
+    AppService,
+    LoggerMiddleware,
+    Logger,
+    {
+      provide: 'APP_FILTER',
+      useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: 'APP_FILTER',
+      useClass: HttpExceptionFilter,
+    },
+    {
+      provide: 'APP_FILTER',
+      useClass: PrismaClientExceptionFilter,
+    },
+    {
+      provide: 'APP_INTERCEPTOR',
+      useClass: SuccessResponseInterceptor,
+    },
+    {
+      provide: 'APP_PIPE',
+      useClass: ValidationPipe,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
