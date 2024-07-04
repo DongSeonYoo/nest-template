@@ -10,7 +10,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { ApiSuccess } from 'src/decorators/api-success.decorator';
 import { ApiException } from 'src/decorators/api-exception.decorator';
 import {
@@ -18,9 +18,9 @@ import {
   CreateUserResponseDto,
 } from './dtos/create-user.dto';
 import { UserListResponseDto } from './dtos/user-list.dto';
-import { LoginAuth } from 'src/decorators/jwt-auth';
 import { PagenationRequestDto } from 'src/dtos/pagenate.dto';
 import { UserDetailResponseDto } from './dtos/user-detail.dto';
+import { LoginAuth } from 'src/decorators/jwt-auth.decorator';
 
 @ApiTags('Users')
 @Controller('users')
