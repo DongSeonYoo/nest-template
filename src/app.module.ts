@@ -15,9 +15,10 @@ import { AuthModule } from './apis/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { PrismaClientExceptionFilter } from './filters/prisma-exception.filter';
-import { GlobalExceptionFilter } from './filters/global-exception.filter';
+import { UnhandledExceptionFilter } from './filters/unhandled-exception.filter';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { SuccessResponseInterceptor } from './interceptors/response.interceptor';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -42,23 +43,23 @@ import { SuccessResponseInterceptor } from './interceptors/response.interceptor'
     LoggerMiddleware,
     Logger,
     {
-      provide: 'APP_FILTER',
-      useClass: GlobalExceptionFilter,
+      provide: APP_FILTER,
+      useClass: UnhandledExceptionFilter,
     },
     {
-      provide: 'APP_FILTER',
+      provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
     {
-      provide: 'APP_FILTER',
+      provide: APP_FILTER,
       useClass: PrismaClientExceptionFilter,
     },
     {
-      provide: 'APP_INTERCEPTOR',
+      provide: APP_FILTER,
       useClass: SuccessResponseInterceptor,
     },
     {
-      provide: 'APP_PIPE',
+      provide: APP_FILTER,
       useClass: ValidationPipe,
     },
   ],
