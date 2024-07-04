@@ -18,7 +18,7 @@ import { PrismaClientExceptionFilter } from './filters/prisma-exception.filter';
 import { UnhandledExceptionFilter } from './filters/unhandled-exception.filter';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { SuccessResponseInterceptor } from './interceptors/response.interceptor';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -55,12 +55,15 @@ import { APP_FILTER } from '@nestjs/core';
       useClass: PrismaClientExceptionFilter,
     },
     {
-      provide: APP_FILTER,
+      provide: APP_INTERCEPTOR,
       useClass: SuccessResponseInterceptor,
     },
     {
-      provide: APP_FILTER,
-      useClass: ValidationPipe,
+      provide: APP_PIPE,
+      useFactory: () =>
+        new ValidationPipe({
+          transform: true,
+        }),
     },
   ],
 })
