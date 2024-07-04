@@ -3,6 +3,30 @@
 - ORM: Prisma
 - Database: Postgresql
 
+### 먼저, 현재 저장소의 최신 상태를 클론합니다
+```
+git clone --depth 1 https://github.com/DongSeonYoo/nest-prisma-template.git .
+```
+
+### .env파일을 만들어줍니다
+```shell
+# Environment variables declared in this file are automatically made available to Prisma.
+# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+
+PORT="3000"
+
+JWT_SECRET_KEY="secret"
+```
+
+### 이휴 npm install로 패키지를 다운로드합니다
+```shell
+npm install
+```
+
 ## package list
 - swagger
 - @nestjs/config
