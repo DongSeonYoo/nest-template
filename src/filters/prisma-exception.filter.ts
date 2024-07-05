@@ -17,20 +17,6 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
     const req = ctx.getRequest();
     const res = ctx.getResponse();
     const status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message: string;
-
-    switch (exception.code) {
-      case 'P2003':
-        message = 'Foreign key constraint failed';
-        break;
-
-      case 'P2002':
-        message = 'Unique constraint failed';
-        break;
-      // 여기에 하나씩 추가
-      default:
-        message = 'An unexpected error occurred';
-    }
 
     // 세부사항 로그 & 응답은 500으로
     this.logger.error(exception.message);
@@ -42,6 +28,6 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
       timestamp: new Date(),
     };
 
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(response);
+    return res.status(status).send(response);
   }
 }
