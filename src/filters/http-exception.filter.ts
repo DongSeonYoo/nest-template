@@ -23,8 +23,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const response: IExceptionResponse = {
-      message: exception.getResponse()['message'],
       statusCode: status,
+      message: exception.getResponse()['message'],
       timestamp: new Date(),
       requestURL: req.url,
     };

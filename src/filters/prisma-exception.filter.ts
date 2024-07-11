@@ -22,9 +22,9 @@ export class PrismaClientExceptionFilter implements ExceptionFilter {
     this.logger.error(exception.message);
 
     const response: IExceptionResponse = {
+      statusCode: status,
       message: 'An unexpected error occurred',
       requestURL: req.url,
-      statusCode: status,
       timestamp: new Date(),
     };
 

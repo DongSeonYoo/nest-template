@@ -17,11 +17,10 @@ export const ApiException = (status: HttpStatus, description: string) => {
           },
           requestURL: {
             type: 'string',
-            example: '/api',
           },
           timestamp: {
             type: 'Date',
-            example: '2024-06-28T05:53:14.341Z',
+            example: new Date(),
           },
         },
       },

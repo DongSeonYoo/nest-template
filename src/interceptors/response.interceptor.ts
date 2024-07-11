@@ -23,9 +23,9 @@ export class SuccessResponseInterceptor<T>
     const res: Response = context.switchToHttp().getResponse();
     return next.handle().pipe(
       map((data) => ({
+        statusCode: res.statusCode,
         message:
           this.reflector.get('response_message', context.getHandler()) || '',
-        statusCode: res.statusCode,
         timestamp: new Date(),
         requestURL: req.path,
         data: data || {},

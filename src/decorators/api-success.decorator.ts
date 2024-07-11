@@ -13,15 +13,13 @@ export const ApiSuccess = <T>(schema: new (...args: any[]) => T) => {
           },
           message: {
             type: 'string',
-            example: 'message',
           },
           requestURL: {
             type: 'string',
-            example: '/api',
           },
           timestamp: {
             type: 'Date',
-            example: '2024-06-28T05:53:14.341Z',
+            example: new Date(),
           },
           data: {
             $ref: getSchemaPath(schema),
