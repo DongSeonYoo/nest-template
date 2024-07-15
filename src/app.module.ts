@@ -14,7 +14,6 @@ import { UsersModule } from './apis/users/users.module';
 import { AuthModule } from './apis/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
-import { PrismaClientExceptionFilter } from './filters/prisma-exception.filter';
 import { UnhandledExceptionFilter } from './filters/unhandled-exception.filter';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { SuccessResponseInterceptor } from './interceptors/response.interceptor';
@@ -49,10 +48,6 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: PrismaClientExceptionFilter,
     },
     {
       provide: APP_INTERCEPTOR,
