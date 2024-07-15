@@ -69,7 +69,7 @@ export interface IExceptionResponse extends IResponse {}
 
 성공 응답: /src/interceptors/response.interceptor.ts
 <br>
-실패 응답: /src/filters/http-exception.filter.ts, /src/filters/prisma-exception.filter.ts
+실패 응답: /src/filters/*.filter.ts
 
 ### TODO
 - ~~로깅~~
