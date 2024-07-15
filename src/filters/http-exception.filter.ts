@@ -6,12 +6,16 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { IExceptionResponse } from 'src/interfaces/response.interface';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  constructor(private readonly logger: Logger) {}
+  constructor(
+    private readonly logger: Logger,
+    private readonly configService: ConfigService,
+  ) {}
 
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
@@ -28,11 +32,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       timestamp: new Date(),
       requestURL: req.url,
     };
-    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
-      this.logger.error(response);
-      // winston같은 로거를 사용해서 로그를 저장하는게 좋을듯?
-    } else {
-      this.logger.warn(response);
+
+    if (this.configService.get<string>('NODE_ENV') === 'development') {
+      this.logger.debug(exception.stack);
     }
 
     return res.status(status).json(response);
