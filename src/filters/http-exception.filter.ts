@@ -17,6 +17,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     private readonly configService: ConfigService,
   ) {}
 
+  private convertErrorMessage(errors: string[]): string {
+    return errors.map((err) => `Validation Error: ${err}`).join(', ');
+  }
+
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const req: Request = ctx.getRequest();
@@ -26,12 +30,21 @@ export class HttpExceptionFilter implements ExceptionFilter {
       ? exception.getStatus()
       : HttpStatus.INTERNAL_SERVER_ERROR;
 
+    const exceptionMessage = exception.getResponse()['message'] as
+      | string
+      | string[];
     const response: IExceptionResponse = {
-      statusCode: status,
-      message: exception.getResponse()['message'],
-      timestamp: new Date(),
+      message: Array.isArray(exceptionMessage)
+        ? this.convertErrorMessage(exceptionMessage)
+        : exceptionMessage,
       requestURL: req.url,
+      statusCode: status,
+      timestamp: new Date(),
     };
+
+    if (response.statusCode === HttpStatus.UNAUTHORIZED) {
+      return res.redirect('/');
+    }
 
     if (this.configService.get<string>('NODE_ENV') === 'development') {
       this.logger.debug(exception.stack);

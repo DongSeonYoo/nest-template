@@ -8,7 +8,7 @@ datasource db {
 }
 
 model user {
-  idx       Int       @default(autoincrement())
+  idx       Int       @id @default(autoincrement())
   email     String    @unique(map: "user_email_unique") @db.VarChar
   name      String    @db.VarChar
   password  String    @db.Char(60)

@@ -7,6 +7,7 @@ import { AuthService } from '../auth.service';
 export class JwtAccessStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
     super({
+      // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       jwtFromRequest: (req) => {
         return req.cookies['access_token'];
       },

@@ -5,8 +5,6 @@ import {
   NestModule,
   ValidationPipe,
 } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
@@ -18,27 +16,21 @@ import { UnhandledExceptionFilter } from './filters/unhandled-exception.filter';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { SuccessResponseInterceptor } from './interceptors/response.interceptor';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { TokenModule } from './token/token.module';
+import { DateUtilModule } from './utils/date-util/date-util.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client', 'html'),
-      renderPath: '/',
-      serveStaticOptions: {
-        extensions: ['html'],
-      },
-      exclude: ['/api/(.*)'],
-    }),
     UsersModule,
     AuthModule,
     PrismaModule,
+    TokenModule,
+    DateUtilModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     LoggerMiddleware,
     Logger,
     {

@@ -4,10 +4,8 @@ import {
   Body,
   HttpCode,
   HttpStatus,
-  Get,
-  Query,
+  Put,
   Param,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -16,13 +14,11 @@ import {
   CreateUserRequestDto,
   CreateUserResponseDto,
 } from './dtos/create-user.dto';
-import { UserListResponseDto } from './dtos/user-list.dto';
-import { PagenationRequestDto } from 'src/dtos/pagenate.dto';
-import { UserDetailResponseDto } from './dtos/user-detail.dto';
 import { LoginAuth } from 'src/decorators/jwt-auth.decorator';
 import { UserEmailExistsException } from './exceptions/user-email-exists.exception';
-import { UserNotFoundException } from './exceptions/user-not-found.exception';
 import { ApiExceptions } from 'src/decorators/api-exception.decorator';
+import { UpdateUserRequestDto } from './dtos/update-user.dto';
+import { UserNotFoundException } from './exceptions/user-not-found.exception';
 
 @ApiTags('Users')
 @Controller('users')
@@ -40,31 +36,36 @@ export class UsersController {
     exampleTitle: '중복된 이메일이 존재할 경우',
     schema: UserEmailExistsException,
   })
-  create(@Body() createUserDto: CreateUserRequestDto) {
-    return this.usersService.create(createUserDto);
+  async createUser(
+    @Body() createUserDto: CreateUserRequestDto,
+  ): Promise<CreateUserResponseDto> {
+    const createdUser = await this.usersService.createUser(createUserDto);
+
+    return CreateUserResponseDto.of(createdUser);
   }
 
   /**
-   * 전체 유저 조회
+   * 유저 정보 수정
    */
-  @Get('list')
+  @Put(':userIdx')
   @LoginAuth()
-  @ApiSuccess(UserListResponseDto)
-  @LoginAuth()
-  findAll(@Query() pagenate: PagenationRequestDto) {
-    return this.usersService.getUserList(pagenate);
-  }
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiExceptions(
+    {
+      exampleTitle: '해당 유저가 존재하지 않을 경우',
+      schema: UserNotFoundException,
+    },
+    {
+      exampleTitle: '중복된 이메일이 존재할 경우',
+      schema: UserEmailExistsException,
+    },
+  )
+  async updateUser(
+    @Body() updateUserDto: UpdateUserRequestDto,
+    @Param('userIdx') userIdx: number,
+  ): Promise<void> {
+    await this.usersService.updateUser(userIdx, updateUserDto);
 
-  /**
-   * 특정 유저 조회
-   */
-  @Get(':userIdx')
-  @ApiSuccess(UserDetailResponseDto)
-  @ApiExceptions({
-    exampleTitle: '사용자를 찾지 못했을 경우',
-    schema: UserNotFoundException,
-  })
-  findOne(@Param('userIdx', ParseIntPipe) userIdx: number) {
-    return this.usersService.findUserByIdx(userIdx);
+    return;
   }
 }

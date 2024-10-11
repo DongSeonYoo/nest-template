@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RedisService } from './redis.service';
+import { RedisService } from '../../src/redis/redis.service';
 import { RedisClient } from 'ioredis/built/connectors/SentinelConnector/types';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 describe('RedisService', () => {
   let redisService: RedisService;
@@ -25,6 +26,7 @@ describe('RedisService', () => {
           provide: Logger,
           useValue: mockLogger,
         },
+        ConfigService,
       ],
     }).compile();
 
