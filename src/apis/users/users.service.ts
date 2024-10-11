@@ -1,100 +1,109 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import {
-  CreateUserRequestDto,
-  CreateUserResponseDto,
-} from './dtos/create-user.dto';
-import { IUser } from './entities/user.entity';
-import { PagenationRequestDto } from 'src/dtos/pagenate.dto';
+import { Injectable } from '@nestjs/common';
+import { UsersRepository } from './users.repository';
+import { CreateUserRequestDto } from './dtos/create-user.dto';
+import { UserEntity } from './entities/user.entity';
+import { TransactionManager } from 'src/prisma/prisma-transaction.manager';
 import { UserEmailExistsException } from './exceptions/user-email-exists.exception';
+import { UpdateUserRequestDto } from './dtos/update-user.dto';
 import { UserNotFoundException } from './exceptions/user-not-found.exception';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
-  async checkDuplicateEmail(email: IUser['email']): Promise<void> {
-    const checkEmail = await this.prismaService.user.findUnique({
-      select: {
-        email: true,
-      },
-      where: {
-        email,
-        deletedAt: null,
-      },
-    });
+  constructor(
+    private readonly userRepository: UsersRepository,
+    private readonly transactionManager: TransactionManager,
+  ) {}
 
-    if (checkEmail?.email) {
+  /**
+   * 회원 가입
+   *
+   * - 이메일 중복 체크
+   * - dto를 UserEntity로 변환한 후, repository 레이어에 넘겨준다
+   * - 다른 트랜잭션이 존재한다면 transactionManager 내에서 tx를 넘겨주며 로직들을 실행한다
+   * - repository로부터 도메인 엔티티로 변환된 UserEntity를 반환한다.
+   */
+  async createUser(dto: CreateUserRequestDto): Promise<UserEntity> {
+    // 이메일 중복 체크
+    const checkDuplicateEmail = await this.userRepository.checkDuplicateEmail(
+      dto.email,
+    );
+    if (checkDuplicateEmail) {
       throw new UserEmailExistsException();
     }
 
-    return;
-  }
+    // dto를 UserEntity로 변환
+    const userEntity = dto.toEntity();
 
-  async create(createUserDto: CreateUserRequestDto): Promise<IUser['idx']> {
-    await Promise.all([this.checkDuplicateEmail(createUserDto.email)]);
+    // 트랜잭션 시작
+    const txResult = this.transactionManager.runTransaction(async (tx) => {
+      const createdUser = await this.userRepository.createUser(userEntity, tx);
 
-    const createUserResult = await this.prismaService.user.create({
-      data: {
-        ...createUserDto,
-      },
-      select: {
-        idx: true,
-      },
+      // another transactions...
+
+      return createdUser;
     });
 
-    return createUserResult.idx;
+    // 트랜잭션 결과 반환
+    return txResult;
   }
 
-  async getUserList(
-    pagenate: PagenationRequestDto,
-  ): Promise<IUser.IUserListResponse> {
-    const userListResult = await this.prismaService.user.findMany({
-      where: {
-        deletedAt: null,
-      },
-      select: {
-        idx: true,
-        email: true,
-        name: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        idx: 'asc',
-      },
-      skip: pagenate.getOffset(),
-      take: pagenate.limit,
-    });
+  /**
+   * 유저 정보 수정
+   *
+   * - 해당 유저가 존재하는지 체크
+   * - 중복된 이메일이 존재하는지 체크
+   * - dto를 UserEntity로 변환한 후, repository 레이어에 넘겨준다
+   * - 다른 트랜잭션이 존재한다면 transactionManager 내에서 tx를 넘겨주며 로직들을 실행한다
+   */
+  async updateUser(
+    userIdx: number,
+    dto: UpdateUserRequestDto,
+  ): Promise<UserEntity> {
+    // 해당 유저가 존재하는지 체크
+    await this.checkExistStudent(userIdx);
 
-    return {
-      users: userListResult,
-    };
+    // 이메일 중복 체크
+    if (dto.email) {
+      const checkDuplicateEmail = await this.userRepository.checkDuplicateEmail(
+        dto.email,
+      );
+      if (checkDuplicateEmail) {
+        throw new UserEmailExistsException();
+      }
+    }
+
+    // dto를 UserEntity로 변환
+    const userEntity = dto.toEntity();
+
+    const txResult = await this.transactionManager.runTransaction(
+      async (tx) => {
+        const updatedUser = await this.userRepository.updateUser(
+          userIdx,
+          userEntity,
+          tx,
+        );
+
+        // another transactions...
+        return updatedUser;
+      },
+    );
+
+    return txResult;
   }
 
-  async findUserByIdx(
-    userIdx: IUser['idx'],
-  ): Promise<IUser.IUserDetailResponse> {
-    const userResult = await this.prismaService.user.findFirst({
-      where: {
-        idx: userIdx,
-        deletedAt: null,
-      },
-    });
+  /**
+   * 유저 정보가 존재하는지 확인
+   *
+   * - 해당 유저가 존재하지 않으면 UserNotFoundException을 발생시킨다
+   * - 존재한다면 해당 유저 정보를 반환한다
+   */
+  async checkExistStudent(userIdx: number): Promise<UserEntity> {
+    const findUserEntity = await this.userRepository.findUserByIdx(userIdx);
 
-    if (!userResult) {
+    if (!findUserEntity) {
       throw new UserNotFoundException();
     }
 
-    return {
-      idx: userResult.idx,
-      email: userResult.email,
-      name: userResult.name,
-      createdAt: userResult.createdAt,
-      updatedAt: userResult.updatedAt,
-    };
+    return findUserEntity;
   }
 }
