@@ -12,7 +12,6 @@ import {
 import { UsersService } from './users.service';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiSuccess } from 'src/decorators/api-success.decorator';
-import { ApiException } from 'src/decorators/api-exception.decorator';
 import {
   CreateUserRequestDto,
   CreateUserResponseDto,
@@ -23,6 +22,7 @@ import { UserDetailResponseDto } from './dtos/user-detail.dto';
 import { LoginAuth } from 'src/decorators/jwt-auth.decorator';
 import { UserEmailExistsException } from './exceptions/user-email-exists.exception';
 import { UserNotFoundException } from './exceptions/user-not-found.exception';
+import { ApiExceptions } from 'src/decorators/api-exception.decorator';
 
 @ApiTags('Users')
 @Controller('users')
@@ -36,7 +36,10 @@ export class UsersController {
   @LoginAuth()
   @HttpCode(HttpStatus.OK)
   @ApiSuccess(CreateUserResponseDto)
-  @ApiException(UserEmailExistsException)
+  @ApiExceptions({
+    exampleTitle: '중복된 이메일이 존재할 경우',
+    schema: UserEmailExistsException,
+  })
   create(@Body() createUserDto: CreateUserRequestDto) {
     return this.usersService.create(createUserDto);
   }
@@ -57,7 +60,10 @@ export class UsersController {
    */
   @Get(':userIdx')
   @ApiSuccess(UserDetailResponseDto)
-  @ApiException(UserNotFoundException)
+  @ApiExceptions({
+    exampleTitle: '사용자를 찾지 못했을 경우',
+    schema: UserNotFoundException,
+  })
   findOne(@Param('userIdx', ParseIntPipe) userIdx: number) {
     return this.usersService.findUserByIdx(userIdx);
   }
