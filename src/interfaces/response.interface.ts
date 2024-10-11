@@ -1,6 +1,6 @@
 interface IResponse {
   statusCode: number;
-  message: string | string[];
+  message: string;
   timestamp: Date;
   requestURL: string;
 }
