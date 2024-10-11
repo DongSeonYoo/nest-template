@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Redis } from 'ioredis';
 
 @Injectable()
@@ -6,6 +7,7 @@ export class RedisService implements OnModuleInit {
   constructor(
     @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
     private readonly logger: Logger,
+    private readonly configService: ConfigService,
   ) {}
 
   onModuleInit() {
@@ -19,6 +21,17 @@ export class RedisService implements OnModuleInit {
   }
 
   async get(key: string): Promise<string | null> {
-    return this.redisClient.get(key);
+    return this.redisClient.get(`session:${key}`);
+  }
+
+  async set(key: string): Promise<void> {
+    this.redisClient.set(
+      `session:admin`,
+      key,
+      'EX',
+      60 * 60 * this.configService.get('DEFAUT_SESSION_HOURS'),
+    );
+
+    return;
   }
 }
