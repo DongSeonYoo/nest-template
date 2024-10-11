@@ -5,8 +5,6 @@ import {
   NestModule,
   ValidationPipe,
 } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
@@ -32,9 +30,7 @@ import { DateUtilModule } from './utils/date-util/date-util.module';
     TokenModule,
     DateUtilModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     LoggerMiddleware,
     Logger,
     {
