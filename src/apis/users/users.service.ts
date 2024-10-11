@@ -10,6 +10,8 @@ import {
 } from './dtos/create-user.dto';
 import { IUser } from './entities/user.entity';
 import { PagenationRequestDto } from 'src/dtos/pagenate.dto';
+import { UserEmailExistsException } from './exceptions/user-email-exists.exception';
+import { UserNotFoundException } from './exceptions/user-not-found.exception';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +28,7 @@ export class UsersService {
     });
 
     if (checkEmail?.email) {
-      throw new ConflictException('이미 존재하는 이메일입니다.');
+      throw new UserEmailExistsException();
     }
 
     return;
@@ -84,7 +86,7 @@ export class UsersService {
     });
 
     if (!userResult) {
-      throw new NotFoundException('존재하지 않는 유저입니다.');
+      throw new UserNotFoundException();
     }
 
     return {

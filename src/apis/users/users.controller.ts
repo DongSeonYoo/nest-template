@@ -21,6 +21,8 @@ import { UserListResponseDto } from './dtos/user-list.dto';
 import { PagenationRequestDto } from 'src/dtos/pagenate.dto';
 import { UserDetailResponseDto } from './dtos/user-detail.dto';
 import { LoginAuth } from 'src/decorators/jwt-auth.decorator';
+import { UserEmailExistsException } from './exceptions/user-email-exists.exception';
+import { UserNotFoundException } from './exceptions/user-not-found.exception';
 
 @ApiTags('Users')
 @Controller('users')
@@ -31,10 +33,10 @@ export class UsersController {
    * 회원 가입
    */
   @Post()
+  @LoginAuth()
   @HttpCode(HttpStatus.OK)
   @ApiSuccess(CreateUserResponseDto)
-  @ApiException(HttpStatus.BAD_REQUEST, 'something errors')
-  @ApiException(HttpStatus.CONFLICT, '이미 존재하는 이메일입니다.')
+  @ApiException(UserEmailExistsException)
   create(@Body() createUserDto: CreateUserRequestDto) {
     return this.usersService.create(createUserDto);
   }
@@ -43,8 +45,8 @@ export class UsersController {
    * 전체 유저 조회
    */
   @Get('list')
+  @LoginAuth()
   @ApiSuccess(UserListResponseDto)
-  @ApiException(HttpStatus.BAD_REQUEST, 'someting errors')
   @LoginAuth()
   findAll(@Query() pagenate: PagenationRequestDto) {
     return this.usersService.getUserList(pagenate);
@@ -55,7 +57,7 @@ export class UsersController {
    */
   @Get(':userIdx')
   @ApiSuccess(UserDetailResponseDto)
-  @ApiException(HttpStatus.NOT_FOUND, '존재하지 않는 유저입니다.')
+  @ApiException(UserNotFoundException)
   findOne(@Param('userIdx', ParseIntPipe) userIdx: number) {
     return this.usersService.findUserByIdx(userIdx);
   }
