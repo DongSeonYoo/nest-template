@@ -3,7 +3,7 @@ import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
 import { ExamplesObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { IExceptionResponse } from 'src/interfaces/response.interface';
 
-export interface ErrorResponseOption {
+export interface ErrorResponseOption<T extends HttpException> {
   /**
    * 에러 예시의 제목
    */
@@ -12,13 +12,15 @@ export interface ErrorResponseOption {
   /**
    * 에러 스키마
    */
-  schema: Type<HttpException>;
+  schema: Type<T>;
 }
 
-export const ApiExceptions = (...errorResponses: ErrorResponseOption[]) => {
+export const ApiExceptions = <T extends HttpException>(
+  ...errorResponses: ErrorResponseOption<T>[]
+) => {
   const examplesMap = new Map<number, ExamplesObject>();
 
-  errorResponses.forEach((err: ErrorResponseOption) => {
+  errorResponses.forEach((err: ErrorResponseOption<T>) => {
     const errorInstance = new err.schema();
     const statusCode = errorInstance.getStatus();
     const errorResponse: IExceptionResponse = {
