@@ -1,4 +1,5 @@
-### nestjs template
+### NestJS boilerplate
+- Quick start with an NestJS project using TypeScript and Prisma.
 
 - ORM: Prisma
 - Database: Postgresql
@@ -71,5 +72,6 @@ export interface IExceptionResponse extends IResponse {}
 - ~~테스트코드~~
 - ~~swagger 다양한 옵션~~
 - 유틸함수 테스트 추가
-- 스웨거 데코레이터 유연하게 리팩토링
+- 스웨거 데코레이터 좀 더 유연하게 리팩토링
+- 다른 ORM 추가 (TypeORM, MikroORM, Kysely)
 - 추가중....
