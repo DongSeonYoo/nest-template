@@ -39,7 +39,7 @@ export class DateUtilService {
    * @param dateString ISO datestring
    * @returns Date
    */
-  stringToUtcDate(dateString: string): Date {
+  private stringToUtcDate(dateString: string): Date {
     return dayjs(dateString).toDate();
   }
 
