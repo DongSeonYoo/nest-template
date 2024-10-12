@@ -1,5 +1,10 @@
 import { HttpException, Type, applyDecorators } from '@nestjs/common';
-import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
+import {
+  ApiExtraModels,
+  ApiProperty,
+  ApiResponse,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { ExamplesObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { IExceptionResponse } from 'src/interfaces/response.interface';
 
@@ -13,6 +18,28 @@ export interface ErrorResponseOption<T extends HttpException> {
    * 에러 스키마
    */
   schema: Type<T>;
+}
+
+export class ExceptionResponse implements IExceptionResponse {
+  @ApiProperty({
+    description: '응답 메시지',
+  })
+  message: string;
+
+  @ApiProperty({
+    description: '요청 URL',
+  })
+  requestURL: string;
+
+  @ApiProperty({
+    description: 'timestamp',
+  })
+  timestamp: Date;
+
+  @ApiProperty({
+    description: 'HTTP 상태 코드',
+  })
+  statusCode: number;
 }
 
 export const ApiExceptions = <T extends HttpException>(
@@ -46,18 +73,14 @@ export const ApiExceptions = <T extends HttpException>(
   });
 
   return applyDecorators(
-    ApiExtraModels(HttpException),
+    ApiExtraModels(ExceptionResponse),
     ...Array.from(examplesMap.entries()).map(([statusCode, examples]) =>
       ApiResponse({
         status: statusCode,
         content: {
           'application/json': {
             schema: {
-              oneOf: [
-                {
-                  $ref: getSchemaPath(HttpException),
-                },
-              ],
+              $ref: getSchemaPath(ExceptionResponse),
             },
             examples: examples,
           },
